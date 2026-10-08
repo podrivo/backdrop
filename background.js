@@ -3,6 +3,8 @@ const save = (url) =>
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const bitmap = async (url) => createImageBitmap(await (await fetch(url)).blob());
+
 const toDataUrl = (blob) => new Promise((r) => {
   const f = new FileReader();
   f.onload = () => r(f.result);
@@ -80,7 +82,7 @@ async function fullPage(tab) {
       const top = await run(step, [y, y > 0]);
       await sleep(550); // captureVisibleTab is limited to 2 calls/sec
       const url = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
-      shots.push({ top, img: await createImageBitmap(await (await fetch(url)).blob()) });
+      shots.push({ top, img: await bitmap(url) });
       if (top + m.height >= m.scrollHeight - 1 || (shots.length > 1 && top <= shots.at(-2).top)) break;
     }
   } finally {
@@ -100,20 +102,10 @@ async function fullPage(tab) {
   return toDataUrl(await canvas.convertToBlob({ type: 'image/png' }));
 }
 
-// Base color, then soft color blobs placed at BLOBS positions.
-const BACKGROUNDS = {
-  sunset: ['#2d1b4e', '#ff6b6b', '#ffa94d', '#c2255c'],
-  ocean: ['#0b1d3a', '#1c7ed6', '#22b8cf', '#5f3dc4'],
-  aurora: ['#081c15', '#2f9e44', '#20c997', '#7048e8'],
-  grape: ['#1a1033', '#9c36b5', '#e64980', '#4263eb'],
-  mint: ['#e6fcf5', '#63e6be', '#74c0fc', '#ffd8a8'],
-};
-const BLOBS = [[0.15, 0.2], [0.85, 0.25], [0.55, 0.95]];
-
-// Centers the screenshot with rounded corners on a 16:10 abstract background.
-async function frame(url, name, cssWidth) {
-  const [base, ...blobs] = BACKGROUNDS[name];
-  const shot = await createImageBitmap(await (await fetch(url)).blob());
+// Centers the screenshot with rounded corners on a 16:10 crop of the wallpaper at extension path `bg`.
+async function frame(url, bg, cssWidth) {
+  const shot = await bitmap(url);
+  const wall = await bitmap(chrome.runtime.getURL(bg));
 
   const W = Math.round(shot.width * 1.25);
   const H = Math.round((W * 10) / 16);
@@ -123,16 +115,9 @@ async function frame(url, name, cssWidth) {
 
   const canvas = new OffscreenCanvas(W, H);
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = base;
-  ctx.fillRect(0, 0, W, H);
-  blobs.forEach((color, i) => {
-    const [x, y] = BLOBS[i];
-    const g = ctx.createRadialGradient(x * W, y * H, 0, x * W, y * H, W * 0.6);
-    g.addColorStop(0, color);
-    g.addColorStop(1, color + '00');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-  });
+  ctx.imageSmoothingQuality = 'high';
+  const cover = Math.max(W / wall.width, H / wall.height);
+  ctx.drawImage(wall, (W - wall.width * cover) / 2, (H - wall.height * cover) / 2, wall.width * cover, wall.height * cover);
 
   const px = (shot.width / cssWidth) * k; // CSS px -> output px
   ctx.beginPath();

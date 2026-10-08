@@ -4,10 +4,10 @@
 
 <h1 align="center">Screenshot</h1>
 
-<p align="center">Capture the visible area or the whole page, and drop it on a soft gradient backdrop ready to share.</p>
+<p align="center">Capture the visible area or the whole page, and frame it on a macOS dynamic wallpaper that follows your local time.</p>
 
 <p align="center">
-  <img src="screenshots/popup.png" alt="The toolbar popup: Full screen, Full page, and background chips with Sunset and Grape selected" width="260" />
+  <img src="screenshots/popup.png" alt="The toolbar popup: Full screen, Full page, and the Big Sur, Big Sur Graphic, The Beach and Sequoia backgrounds at night, with Big Sur selected" width="260" />
 </p>
 
 ## Install (unpacked)
@@ -29,10 +29,17 @@ where to save the PNG.
 - **Sticky and fixed bits** — sticky headers stop following the scroll, and fixed overlays
   (chat bubbles, cookie bars) show up once at the top instead of on every slice. Everything
   is put back exactly as it was afterwards, scroll position included.
-- **Backgrounds** — *Sunset*, *Ocean*, *Aurora*, *Grape* and *Mint* centre the shot with
-  rounded corners and a soft two-layer shadow on a 16:10 gradient. Tap to toggle: pick one
-  to always use it, several to shuffle between them, or none to save the raw capture. Your
-  picks are remembered.
+- **Backgrounds** — *Big Sur*, *Big Sur Graphic*, *The Beach*, *Sequoia*, *Mountain Lake* and
+  *Sunflowers* centre the shot
+  with rounded corners and a soft two-layer shadow on a 16:10 crop of the wallpaper. Tap to
+  toggle: pick one to always use it, several to shuffle between them, or none to save the
+  raw capture. Your picks are remembered.
+- **Time of day** — like the macOS dynamic wallpapers, the background follows your clock.
+  Big Sur and The Beach step through eight frames (night, dawn, sunrise, morning, midday,
+  afternoon, sunset, dusk); Big Sur Graphic and Sequoia switch between light (7:00–18:59)
+  and dark. macOS uses the sun's real position for your location; here the hours are fixed,
+  so sunrise is always around 6:00 and sunset around 17:00. Mountain Lake and Sunflowers are
+  single still images and look the same all day.
 
 ## Limits
 
@@ -47,8 +54,9 @@ where to save the PNG.
 ```
 manifest.json          MV3 manifest — permissions, icons, popup, worker
 background.js          service worker: capture, full-page stitching, backgrounds
-popup.html             toolbar popup: the two capture buttons and background chips
-popup.js               remembers the background, sends the capture request
+popup.html             toolbar popup: the two capture buttons and background toggles
+popup.js               hour → wallpaper frame table, remembers picks, sends the capture request
+backgrounds/           <name>-<frame>.webp, frames extracted from the macOS wallpapers (plus two generated stills)
 icons/                 icon.svg source + rendered PNGs
 screenshots/           the images in this README
 ```

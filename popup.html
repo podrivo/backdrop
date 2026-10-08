@@ -48,22 +48,13 @@
     button:active { transform: translateY(1px); }
     button.primary { background: var(--ink); border-color: var(--ink); color: var(--paper); }
     button.primary:hover { opacity: 0.88; }
-    #bg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    #bg button {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 10px 5px 6px;
-      border-radius: 99px;
-      font-size: 12px;
-      color: var(--ink-soft);
-    }
+    #bg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+    #bg button { display: grid; gap: 6px; padding: 6px 6px 7px; color: var(--ink-soft); white-space: nowrap; }
     #bg button::before {
       content: '';
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--swatch);
+      height: 44px;
+      border-radius: 6px;
+      background: var(--wall) center / cover;
     }
     #bg button[aria-pressed='true'] { border-color: var(--ink); color: var(--ink); }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -73,11 +64,12 @@
   <button class="primary" data-full="false">Full screen</button>
   <button data-full="true">Full page</button>
   <div id="bg" role="group" aria-label="Backgrounds">
-    <button data-bg="sunset" style="--swatch: linear-gradient(135deg, #ff6b6b, #ffa94d)">Sunset</button>
-    <button data-bg="ocean" style="--swatch: linear-gradient(135deg, #1c7ed6, #22b8cf)">Ocean</button>
-    <button data-bg="aurora" style="--swatch: linear-gradient(135deg, #2f9e44, #7048e8)">Aurora</button>
-    <button data-bg="grape" style="--swatch: linear-gradient(135deg, #9c36b5, #e64980)">Grape</button>
-    <button data-bg="mint" style="--swatch: linear-gradient(135deg, #63e6be, #74c0fc)">Mint</button>
+    <button data-bg="bigsur">Big Sur</button>
+    <button data-bg="graphic">Big Sur Graphic</button>
+    <button data-bg="beach">The Beach</button>
+    <button data-bg="sequoia">Sequoia</button>
+    <button data-bg="mountain">Mountain Lake</button>
+    <button data-bg="sunflowers">Sunflowers</button>
   </div>
   <script src="popup.js"></script>
 </body>
