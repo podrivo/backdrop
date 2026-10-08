@@ -1,5 +1,5 @@
 const save = (url, ext) =>
-  chrome.downloads.download({ url, filename: `screenshot-${Date.now()}.${ext}`, saveAs: true });
+  chrome.downloads.download({ url, filename: `backdrop-${Date.now()}.${ext}`, saveAs: true });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

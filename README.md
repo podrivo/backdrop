@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="icons/icon128.png" alt="Screenshot" width="96" height="96" />
+  <img src="icons/icon128.png" alt="Backdrop" width="96" height="96" />
 </p>
 
-<h1 align="center">Screenshot</h1>
+<h1 align="center">Backdrop</h1>
 
 <p align="center">Capture the visible area or the whole page, and frame it on a landscape photo from Unsplash.</p>
 
