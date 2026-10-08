@@ -5,7 +5,14 @@ description: Bumps the "version" field in manifest.json after any change to the 
 
 # Bump Extension Version
 
-After editing any extension file, bump `version` in `manifest.json` at most once per commit. First check `git diff HEAD -- manifest.json`: if `version` already differs from the last commit, the in-progress work already has its bump — don't bump again (unless it now needs a bigger bump, e.g. patch → minor).
+After editing any extension file, bump `version` in `manifest.json` at most once per commit. The user commits outside the chat, so never rely on memory of earlier bumps — run this every time before deciding:
+
+```bash
+git show HEAD:manifest.json | rg '"version"'; rg '"version"' manifest.json
+```
+
+- **Same version** → the last commit already shipped it: bump.
+- **Different version** → uncommitted work already has its bump: don't bump again (unless it now needs a bigger one, e.g. patch → minor).
 
 Chrome versions are 1–4 dot-separated integers (e.g. `1.0`, `1.2.3`). Use `MAJOR.MINOR.PATCH`:
 
