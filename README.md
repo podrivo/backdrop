@@ -7,7 +7,7 @@
 <p align="center">Capture the visible area or the whole page, and drop it on a soft gradient backdrop ready to share.</p>
 
 <p align="center">
-  <img src="screenshots/popup.png" alt="The toolbar popup: Full screen, Full page, and a background picker" width="260" />
+  <img src="screenshots/popup.png" alt="The toolbar popup: Full screen, Full page, and background chips with Sunset and Grape selected" width="260" />
 </p>
 
 ## Install (unpacked)
@@ -30,8 +30,9 @@ where to save the PNG.
   (chat bubbles, cookie bars) show up once at the top instead of on every slice. Everything
   is put back exactly as it was afterwards, scroll position included.
 - **Backgrounds** — *Sunset*, *Ocean*, *Aurora*, *Grape* and *Mint* centre the shot with
-  rounded corners and a soft two-layer shadow on a 16:10 gradient. *Random* picks one each
-  time; *No background* saves the raw capture. Your choice is remembered.
+  rounded corners and a soft two-layer shadow on a 16:10 gradient. Tap to toggle: pick one
+  to always use it, several to shuffle between them, or none to save the raw capture. Your
+  picks are remembered.
 
 ## Limits
 
@@ -46,7 +47,7 @@ where to save the PNG.
 ```
 manifest.json          MV3 manifest — permissions, icons, popup, worker
 background.js          service worker: capture, full-page stitching, backgrounds
-popup.html             toolbar popup: the two capture buttons and background picker
+popup.html             toolbar popup: the two capture buttons and background chips
 popup.js               remembers the background, sends the capture request
 icons/                 icon.svg source + rendered PNGs
 screenshots/           the images in this README

@@ -112,8 +112,7 @@ const BLOBS = [[0.15, 0.2], [0.85, 0.25], [0.55, 0.95]];
 
 // Centers the screenshot with rounded corners on a 16:10 abstract background.
 async function frame(url, name, cssWidth) {
-  const keys = Object.keys(BACKGROUNDS);
-  const [base, ...blobs] = BACKGROUNDS[name === 'random' ? keys[Math.floor(Math.random() * keys.length)] : name];
+  const [base, ...blobs] = BACKGROUNDS[name];
   const shot = await createImageBitmap(await (await fetch(url)).blob());
 
   const W = Math.round(shot.width * 1.25);
