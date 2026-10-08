@@ -100,7 +100,61 @@ async function fullPage(tab) {
   return toDataUrl(await canvas.convertToBlob({ type: 'image/png' }));
 }
 
-chrome.runtime.onMessage.addListener(async ({ tabId, full }) => {
+// Base color, then soft color blobs placed at BLOBS positions.
+const BACKGROUNDS = {
+  sunset: ['#2d1b4e', '#ff6b6b', '#ffa94d', '#c2255c'],
+  ocean: ['#0b1d3a', '#1c7ed6', '#22b8cf', '#5f3dc4'],
+  aurora: ['#081c15', '#2f9e44', '#20c997', '#7048e8'],
+  grape: ['#1a1033', '#9c36b5', '#e64980', '#4263eb'],
+  mint: ['#e6fcf5', '#63e6be', '#74c0fc', '#ffd8a8'],
+};
+const BLOBS = [[0.15, 0.2], [0.85, 0.25], [0.55, 0.95]];
+
+// Centers the screenshot with rounded corners on a 16:10 abstract background.
+async function frame(url, name, cssWidth) {
+  const keys = Object.keys(BACKGROUNDS);
+  const [base, ...blobs] = BACKGROUNDS[name === 'random' ? keys[Math.floor(Math.random() * keys.length)] : name];
+  const shot = await createImageBitmap(await (await fetch(url)).blob());
+
+  const W = Math.round(shot.width * 1.25);
+  const H = Math.round((W * 10) / 16);
+  const k = Math.min((W * 0.8) / shot.width, (H * 0.8) / shot.height);
+  const w = shot.width * k;
+  const h = shot.height * k;
+
+  const canvas = new OffscreenCanvas(W, H);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, W, H);
+  blobs.forEach((color, i) => {
+    const [x, y] = BLOBS[i];
+    const g = ctx.createRadialGradient(x * W, y * H, 0, x * W, y * H, W * 0.6);
+    g.addColorStop(0, color);
+    g.addColorStop(1, color + '00');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  });
+
+  const px = (shot.width / cssWidth) * k; // CSS px -> output px
+  ctx.beginPath();
+  ctx.roundRect((W - w) / 2, (H - h) / 2, w, h, 24 * px);
+
+  // Two stacked shadows (tight + wide) read smoother than a single blur.
+  ctx.fillStyle = '#000';
+  for (const [blur, y, alpha] of [[8, 4, 0.18], [64, 32, 0.35]]) {
+    ctx.shadowColor = `rgba(0,0,0,${alpha})`;
+    ctx.shadowBlur = blur * px;
+    ctx.shadowOffsetY = y * px;
+    ctx.fill();
+  }
+  ctx.shadowColor = 'transparent';
+  ctx.clip();
+  ctx.drawImage(shot, (W - w) / 2, (H - h) / 2, w, h);
+  return toDataUrl(await canvas.convertToBlob({ type: 'image/png' }));
+}
+
+chrome.runtime.onMessage.addListener(async ({ tabId, full, bg }) => {
   const tab = await chrome.tabs.get(tabId);
-  save(full ? await fullPage(tab) : await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }));
+  const url = full ? await fullPage(tab) : await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
+  save(bg ? await frame(url, bg, tab.width) : url);
 });
