@@ -18,7 +18,8 @@
 4. Pin the extension so it's one click away
 
 Then open any page, click the icon and pick **Full screen** or **Full page**. Chrome asks
-where to save the PNG.
+where to save the image. Shots on a background are saved as JPEG at 90% quality (about 5×
+smaller than PNG for a photo); plain captures stay PNG, which is smaller and sharper for UI.
 
 ## How it behaves
 

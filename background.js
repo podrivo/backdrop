@@ -1,5 +1,5 @@
-const save = (url) =>
-  chrome.downloads.download({ url, filename: `screenshot-${Date.now()}.png`, saveAs: true });
+const save = (url, ext) =>
+  chrome.downloads.download({ url, filename: `screenshot-${Date.now()}.${ext}`, saveAs: true });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -10,6 +10,14 @@ const toDataUrl = (blob) => new Promise((r) => {
   f.onload = () => r(f.result);
   f.readAsDataURL(blob);
 });
+
+// Everything stays lossless until here, so the image is compressed exactly once.
+// Photo backgrounds are ~5x smaller as JPEG; plain UI captures are smaller (and sharper) as PNG.
+async function encode(img, type) {
+  const canvas = new OffscreenCanvas(img.width, img.height);
+  canvas.getContext('2d').drawImage(img, 0, 0);
+  return toDataUrl(await canvas.convertToBlob({ type, quality: 0.9 }));
+}
 
 // The functions below run in the page via chrome.scripting.
 
@@ -99,12 +107,11 @@ async function fullPage(tab) {
   crop(first, 0, m.top, 0); // UI above the scroller
   for (const { top, img } of shots) crop(img, m.top, m.height, m.top + top);
   crop(first, m.top + m.height, m.viewport - m.top - m.height, m.top + m.height + extra); // UI below it
-  return toDataUrl(await canvas.convertToBlob({ type: 'image/png' }));
+  return canvas;
 }
 
 // Centers the screenshot with rounded corners on a 16:10 crop of the wallpaper at extension path `bg`.
-async function frame(url, bg, cssWidth) {
-  const shot = await bitmap(url);
+async function frame(shot, bg, cssWidth) {
   const wall = await bitmap(chrome.runtime.getURL(bg));
 
   const W = Math.round(shot.width * 1.25);
@@ -134,11 +141,14 @@ async function frame(url, bg, cssWidth) {
   ctx.shadowColor = 'transparent';
   ctx.clip();
   ctx.drawImage(shot, (W - w) / 2, (H - h) / 2, w, h);
-  return toDataUrl(await canvas.convertToBlob({ type: 'image/png' }));
+  return canvas;
 }
 
 chrome.runtime.onMessage.addListener(async ({ tabId, full, bg }) => {
   const tab = await chrome.tabs.get(tabId);
-  const url = full ? await fullPage(tab) : await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
-  save(bg ? await frame(url, bg, tab.width) : url);
+  const shot = full
+    ? await fullPage(tab)
+    : await bitmap(await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }));
+  if (bg) save(await encode(await frame(shot, bg, tab.width), 'image/jpeg'), 'jpg');
+  else save(await encode(shot, 'image/png'), 'png');
 });
