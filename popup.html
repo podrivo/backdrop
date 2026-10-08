@@ -23,7 +23,7 @@
       }
     }
     body {
-      width: 232px;
+      width: 268px;
       margin: 0;
       padding: 14px;
       display: grid;
@@ -46,10 +46,11 @@
     }
     button:hover { border-color: var(--ink-soft); }
     button:active { transform: translateY(1px); }
-    button.primary { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-    button.primary:hover { opacity: 0.88; }
-    #bg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
-    #bg button { display: grid; gap: 6px; padding: 6px 6px 7px; color: var(--ink-soft); white-space: nowrap; }
+    #bg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 6px; }
+    #bg button {
+      display: grid; gap: 5px; padding: 5px 5px 6px; font-size: 12px; color: var(--ink-soft);
+      white-space: nowrap;
+    }
     #bg button::before {
       content: '';
       height: 44px;
@@ -61,15 +62,18 @@
   </style>
 </head>
 <body>
-  <button class="primary" data-full="false">Full screen</button>
+  <button data-full="false">Full screen</button>
   <button data-full="true">Full page</button>
   <div id="bg" role="group" aria-label="Backgrounds">
-    <button data-bg="bigsur">Big Sur</button>
-    <button data-bg="graphic">Big Sur Graphic</button>
-    <button data-bg="beach">The Beach</button>
-    <button data-bg="sequoia">Sequoia</button>
-    <button data-bg="mountain">Mountain Lake</button>
-    <button data-bg="sunflowers">Sunflowers</button>
+    <button data-bg="forest-road">Forest Road</button>
+    <button data-bg="red-peaks">Red Peaks</button>
+    <button data-bg="dunes">Dunes</button>
+    <button data-bg="canyon">Canyon</button>
+    <button data-bg="meadow">Meadow</button>
+    <button data-bg="autumn-peaks">Autumn</button>
+    <button data-bg="fittonia">Fittonia</button>
+    <button data-bg="tower">Tower</button>
+    <button data-bg="fog">Fog</button>
   </div>
   <script src="popup.js"></script>
 </body>
