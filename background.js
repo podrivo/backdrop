@@ -128,7 +128,7 @@ async function frame(shot, bg, cssWidth) {
 
   const px = (shot.width / cssWidth) * k; // CSS px -> output px
   ctx.beginPath();
-  ctx.roundRect((W - w) / 2, (H - h) / 2, w, h, 24 * px);
+  squircle(ctx, (W - w) / 2, (H - h) / 2, w, h, 24 * px);
 
   // Two stacked shadows (tight + wide) read smoother than a single blur.
   ctx.fillStyle = '#000';
@@ -142,6 +142,29 @@ async function frame(shot, bg, cssWidth) {
   ctx.clip();
   ctx.drawImage(shot, (W - w) / 2, (H - h) / 2, w, h);
   return canvas;
+}
+
+// Superellipse corners (n=5) read as a squircle — flatter sides than roundRect's circular arcs.
+function squircle(ctx, x, y, w, h, r, n = 5) {
+  r = Math.min(r, w / 2, h / 2);
+  const segs = 16;
+  const corner = (cx, cy, a0, a1) => {
+    for (let i = 0; i <= segs; i++) {
+      const a = a0 + ((a1 - a0) * i) / segs;
+      const c = Math.cos(a), s = Math.sin(a);
+      ctx.lineTo(cx + Math.sign(c) * Math.abs(c) ** (2 / n) * r, cy + Math.sign(s) * Math.abs(s) ** (2 / n) * r);
+    }
+  };
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  corner(x + w - r, y + r, -Math.PI / 2, 0);
+  ctx.lineTo(x + w, y + h - r);
+  corner(x + w - r, y + h - r, 0, Math.PI / 2);
+  ctx.lineTo(x + r, y + h);
+  corner(x + r, y + h - r, Math.PI / 2, Math.PI);
+  ctx.lineTo(x, y + r);
+  corner(x + r, y + r, Math.PI, Math.PI * 1.5);
+  ctx.closePath();
 }
 
 chrome.runtime.onMessage.addListener(async ({ tabId, full, bg }) => {

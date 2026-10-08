@@ -2,7 +2,8 @@ const wall = (name) => `backgrounds/${name}.webp`;
 
 const chips = [...document.querySelectorAll('[data-bg]')];
 const names = new Set(chips.map((c) => c.dataset.bg));
-const picked = new Set(JSON.parse(localStorage.bgs ?? '[]'));
+const picked = new Set(JSON.parse(localStorage.bgs ?? JSON.stringify([...names])));
+if (localStorage.bgs == null) localStorage.bgs = JSON.stringify([...picked]);
 
 chips.forEach((c) => {
   c.style.setProperty('--wall', `url(${wall(c.dataset.bg)})`);
