@@ -35,7 +35,7 @@ const sync = () => {
     c.ariaPressed = !off.has(c.dataset.bg);
     c.nextElementSibling.ariaPressed = pinned.has(c.dataset.bg);
   });
-  all.textContent = chips.every((c) => !off.has(c.dataset.bg)) ? 'Deselect all' : 'Select all';
+  all.textContent = chips.every((c) => !off.has(c.dataset.bg)) ? 'Disable all' : 'Enable all';
   localStorage.off = JSON.stringify([...off]);
   localStorage.pins = JSON.stringify([...pinned].filter((n) => shown.includes(n)));
   localStorage.shown = JSON.stringify(shown);
@@ -55,11 +55,14 @@ const roll = () => {
 };
 
 all.onclick = () => {
-  const on = all.textContent === 'Select all';
+  const on = all.textContent === 'Enable all';
   chips.forEach((c) => (on ? off.delete(c.dataset.bg) : off.add(c.dataset.bg)));
   sync();
 };
-document.getElementById('refresh').onclick = roll;
+document.getElementById('refresh').onclick = () => {
+  off.clear();
+  roll();
+};
 roll();
 
 document.querySelectorAll('[data-full]').forEach((b) => {
