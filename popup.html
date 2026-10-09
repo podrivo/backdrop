@@ -46,25 +46,33 @@
     }
     button:hover { border-color: var(--ink-soft); }
     button:active { transform: translateY(1px); }
-    #all {
-      justify-self: end; margin: 6px 0 -4px; padding: 2px 4px; border: 0; background: none;
-      font-size: 12px; color: var(--ink-soft);
-    }
-    #all:hover { color: var(--ink); }
+    .row { display: flex; justify-content: space-between; margin: 6px 0 -4px; }
+    .row button { padding: 2px 4px; border: 0; background: none; font-size: 12px; color: var(--ink-soft); }
+    .row button:hover { color: var(--ink); }
     #bg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-    #bg button {
+    .tile { position: relative; display: grid; }
+    #bg [data-bg] {
       position: relative;
       display: grid; gap: 5px; padding: 5px 5px 6px; font-size: 12px; color: var(--ink-soft);
       white-space: nowrap;
     }
-    #bg button::before {
+    #bg [data-bg]::before {
       content: '';
       height: 44px;
       border-radius: 6px;
       background: var(--wall) center / cover;
     }
-    #bg button[aria-pressed='true'] { border-color: var(--ink); color: var(--ink); }
-    #bg button[aria-pressed='true']::after {
+    .pin {
+      position: absolute; top: 9px; left: 9px;
+      width: 16px; height: 16px; padding: 0; border: 0; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--paper); color: var(--ink);
+      opacity: 0;
+    }
+    .tile:hover .pin, .pin:focus-visible, .pin[aria-pressed='true'] { opacity: 1; }
+    .pin[aria-pressed='true'] svg { fill: currentColor; }
+    #bg [data-bg][aria-pressed='true'] { border-color: var(--ink); color: var(--ink); }
+    #bg [data-bg][aria-pressed='true']::after {
       content: '✓';
       position: absolute; top: 9px; right: 9px;
       width: 16px; height: 16px; border-radius: 50%;
@@ -77,18 +85,19 @@
 <body>
   <button data-full="false">Current screen</button>
   <button data-full="true">Entire page</button>
-  <button id="all"></button>
-  <div id="bg" role="group" aria-label="Backgrounds">
-    <button data-bg="forest-road">Forest Road</button>
-    <button data-bg="red-peaks">Red Peaks</button>
-    <button data-bg="dunes">Dunes</button>
-    <button data-bg="canyon">Canyon</button>
-    <button data-bg="meadow">Meadow</button>
-    <button data-bg="autumn-peaks">Autumn</button>
-    <button data-bg="fittonia">Fittonia</button>
-    <button data-bg="tower">Tower</button>
-    <button data-bg="fog">Fog</button>
+  <div class="row">
+    <button id="refresh">Refresh</button>
+    <button id="all"></button>
   </div>
+  <div id="bg" role="group" aria-label="Backgrounds"></div>
+  <template id="tile">
+    <div class="tile">
+      <button data-bg></button>
+      <button class="pin">
+        <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+      </button>
+    </div>
+  </template>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Backdrop — screenshots worth sharing",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Capture the visible area or the whole page, and frame it on a landscape photo from Unsplash.",
   "permissions": ["activeTab", "scripting", "downloads"],
   "action": {
