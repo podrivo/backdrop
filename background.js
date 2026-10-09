@@ -128,7 +128,7 @@ async function frame(shot, bg, cssWidth) {
 
   const px = (shot.width / cssWidth) * k; // CSS px -> output px
   ctx.beginPath();
-  squircle(ctx, (W - w) / 2, (H - h) / 2, w, h, 24 * px);
+  squircle(ctx, (W - w) / 2, (H - h) / 2, w, h, 48 * px);
 
   // Two stacked shadows (tight + wide) read smoother than a single blur.
   ctx.fillStyle = '#000';
@@ -167,11 +167,31 @@ function squircle(ctx, x, y, w, h, r, n = 5) {
   ctx.closePath();
 }
 
-chrome.runtime.onMessage.addListener(async ({ tabId, full, bg }) => {
+async function capture({ tabId, full, bg }) {
   const tab = await chrome.tabs.get(tabId);
   const shot = full
     ? await fullPage(tab)
     : await bitmap(await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }));
   if (bg) save(await encode(await frame(shot, bg, tab.width), 'image/jpeg'), 'jpg');
   else save(await encode(shot, 'image/png'), 'png');
+}
+
+// The badge shows progress (full-page captures take a while) and surfaces errors instead of failing silently.
+const badge = (text, title = 'Backdrop') => {
+  chrome.action.setBadgeText({ text });
+  chrome.action.setTitle({ title });
+};
+
+chrome.runtime.onMessage.addListener((msg, _, ack) => {
+  ack();
+  badge('…', 'Capturing…');
+  chrome.action.setBadgeBackgroundColor({ color: '#666' });
+  capture(msg).then(
+    () => badge(''),
+    (e) => {
+      console.error(e);
+      chrome.action.setBadgeBackgroundColor({ color: '#d33' });
+      badge('!', `Capture failed: ${e.message}`);
+    },
+  );
 });

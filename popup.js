@@ -20,7 +20,8 @@ document.querySelectorAll('[data-full]').forEach((b) => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const pool = [...picked].filter((n) => names.has(n));
     const name = pool[Math.floor(Math.random() * pool.length)];
-    chrome.runtime.sendMessage({ tabId: tab.id, full: b.dataset.full === 'true', bg: name && wall(name) });
+    // Closing before the service worker receives the message silently drops it.
+    await chrome.runtime.sendMessage({ tabId: tab.id, full: b.dataset.full === 'true', bg: name && wall(name) });
     window.close();
   };
 });
