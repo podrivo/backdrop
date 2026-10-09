@@ -71,7 +71,8 @@
       opacity: 0;
     }
     .tile:hover .pin { opacity: 0.5; }
-    .tile .pin:hover, .pin:focus-visible, .pin[aria-pressed='true'] { opacity: 1; }
+    .tile:has([data-bg]:active) .pin { transform: translateY(1px); }
+    .tile .pin:hover, .tile .pin:focus-visible, .tile .pin[aria-pressed='true'] { opacity: 1; }
     .pin[aria-pressed='true'] svg { fill: currentColor; }
     #bg [data-bg][aria-pressed='true'] { color: var(--ink); }
     #bg [data-bg][aria-pressed='false'] { opacity: 0.4; filter: grayscale(1); }
