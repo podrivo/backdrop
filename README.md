@@ -6,6 +6,8 @@
 
 <p align="center">Capture the visible area or the whole page, and frame it on a landscape photo from Unsplash.</p>
 
+[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/backdrop-%E2%80%94-screenshots-wo/omeobpnjkmohdoeikgpfnfiipemidflk)
+
 <p align="center">
   <img src="screenshots/popup.png" alt="The toolbar popup: Full screen, Full page, and a 3×3 grid of background photo toggles with Forest Road selected" width="296" />
 </p>
