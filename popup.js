@@ -5,15 +5,27 @@ const names = new Set(chips.map((c) => c.dataset.bg));
 const picked = new Set(JSON.parse(localStorage.bgs ?? JSON.stringify([...names])));
 if (localStorage.bgs == null) localStorage.bgs = JSON.stringify([...picked]);
 
+const all = document.getElementById('all');
+const sync = () => {
+  chips.forEach((c) => (c.ariaPressed = picked.has(c.dataset.bg)));
+  all.textContent = chips.every((c) => picked.has(c.dataset.bg)) ? 'Deselect all' : 'Select all';
+  localStorage.bgs = JSON.stringify([...picked]);
+};
+
 chips.forEach((c) => {
   c.style.setProperty('--wall', `url(${wall(c.dataset.bg)})`);
-  c.ariaPressed = picked.has(c.dataset.bg);
   c.onclick = () => {
     picked.has(c.dataset.bg) ? picked.delete(c.dataset.bg) : picked.add(c.dataset.bg);
-    c.ariaPressed = picked.has(c.dataset.bg);
-    localStorage.bgs = JSON.stringify([...picked]);
+    sync();
   };
 });
+
+all.onclick = () => {
+  const on = all.textContent === 'Select all';
+  chips.forEach((c) => (on ? picked.add(c.dataset.bg) : picked.delete(c.dataset.bg)));
+  sync();
+};
+sync();
 
 document.querySelectorAll('[data-full]').forEach((b) => {
   b.onclick = async () => {
