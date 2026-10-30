@@ -21,6 +21,14 @@ async function encode(img, type) {
 
 // The functions below run in the page via chrome.scripting.
 
+function hideScrollbars() {
+  const s = document.createElement('style');
+  s.dataset.ssScrollbars = '';
+  s.textContent =
+    '*{scrollbar-width:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}';
+  document.documentElement.appendChild(s);
+}
+
 // Picks what to scroll: the document, or (for app layouts where it doesn't scroll) the largest scrollable element.
 function measure() {
   let el = document.scrollingElement;
@@ -67,6 +75,7 @@ function step(y, hideFixed) {
 }
 
 function restore(y) {
+  document.querySelector('style[data-ss-scrollbars]')?.remove();
   for (const el of document.querySelectorAll('[data-ss-style]')) {
     el.setAttribute('style', el.dataset.ssStyle);
     el.removeAttribute('data-ss-style');
@@ -83,6 +92,7 @@ async function fullPage(tab) {
   const run = (func, args = []) =>
     chrome.scripting.executeScript({ target: { tabId: tab.id }, func, args }).then(([r]) => r.result);
 
+  await run(hideScrollbars);
   const m = await run(measure);
   const shots = [];
   try {
@@ -110,15 +120,16 @@ async function fullPage(tab) {
   return canvas;
 }
 
-// Centers the screenshot with rounded corners on a 16:10 crop of the wallpaper at extension path `bg`.
+// Centers the screenshot with rounded corners; padding is a fraction of width so tall pages don't get huge gutters.
 async function frame(shot, bg, cssWidth) {
   const wall = await bitmap(chrome.runtime.getURL(bg));
 
-  const W = Math.round(shot.width * 1.25);
-  const H = Math.round((W * 10) / 16);
-  const k = Math.min((W * 0.8) / shot.width, (H * 0.8) / shot.height);
-  const w = shot.width * k;
-  const h = shot.height * k;
+  const pad = Math.round(shot.width * 0.125);
+  const W = shot.width + pad * 2;
+  const H = shot.height + pad * 2;
+  const w = shot.width;
+  const h = shot.height;
+  const k = 1;
 
   const canvas = new OffscreenCanvas(W, H);
   const ctx = canvas.getContext('2d');
@@ -169,9 +180,19 @@ function squircle(ctx, x, y, w, h, r, n = 5) {
 
 async function capture({ tabId, full, bg }) {
   const tab = await chrome.tabs.get(tabId);
-  const shot = full
-    ? await fullPage(tab)
-    : await bitmap(await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }));
+  const run = (func) =>
+    chrome.scripting.executeScript({ target: { tabId: tab.id }, func }).then(([r]) => r.result);
+  let shot;
+  if (full) {
+    shot = await fullPage(tab);
+  } else {
+    await run(hideScrollbars);
+    try {
+      shot = await bitmap(await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }));
+    } finally {
+      await run(() => document.querySelector('style[data-ss-scrollbars]')?.remove());
+    }
+  }
   if (bg) save(await encode(await frame(shot, bg, tab.width), 'image/jpeg'), 'jpg');
   else save(await encode(shot, 'image/png'), 'png');
 }
