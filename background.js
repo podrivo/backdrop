@@ -138,14 +138,26 @@ async function fullPage(tab) {
   const canvas = new OffscreenCanvas(first.width, Math.round((m.viewport + extra) * s));
   const ctx = canvas.getContext('2d');
   // Full-width strips re-paste side chrome on every slice; only the scroller column scrolls.
-  // Side chrome is drawn once, then its bottom pixel is stretched so the column fills the hole.
+  // Side chrome once, then fill the hole with a solid sample from the strip's center —
+  // stretching the bottom row picks up borders / rounded-corner AA / transparency.
   const crop = (img, sx, sy, sw, sh, dx, dy, dw = sw, dh = sh) => {
     if (sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0) return;
     ctx.drawImage(img, sx * s, sy * s, sw * s, sh * s, dx * s, dy * s, dw * s, dh * s);
   };
+  const sample = (x, y) => {
+    const c = new OffscreenCanvas(1, 1);
+    const cctx = c.getContext('2d');
+    cctx.drawImage(first, Math.floor(x * s), Math.floor(y * s), 1, 1, 0, 0, 1, 1);
+    const [r, g, b, a] = cctx.getImageData(0, 0, 1, 1).data;
+    return `rgba(${r},${g},${b},${a / 255})`;
+  };
   const side = (sx, w, dx) => {
+    if (w <= 0) return;
     crop(first, sx, m.top, w, m.height, dx, m.top);
-    if (extra > 0) crop(first, sx, m.top + m.height - 1, w, 1, dx, m.top + m.height, w, extra);
+    if (extra > 0) {
+      ctx.fillStyle = sample(sx + w / 2, m.top + m.height / 2);
+      ctx.fillRect(dx * s, (m.top + m.height) * s, w * s, extra * s);
+    }
   };
 
   crop(first, 0, 0, m.width, m.top, 0, 0); // UI above the scroller
