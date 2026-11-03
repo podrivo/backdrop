@@ -67,11 +67,33 @@ function measure() {
   el.setAttribute('data-ss-scroller', '');
   const isDoc = el === document.scrollingElement;
   const r = el.getBoundingClientRect();
+  const top = isDoc ? 0 : Math.max(0, r.top + el.clientTop);
+  const left = isDoc ? 0 : Math.max(0, r.left + el.clientLeft);
+  const height = isDoc ? innerHeight : el.clientHeight;
+  const contentWidth = isDoc ? innerWidth : el.clientWidth;
+  // Footer chrome: short last child sitting on the column floor (gap checks fail when the
+  // nav sibling is flex-1 and only pt-4 separates them).
+  const pinBottom = (x0, x1) => {
+    const y1 = top + height;
+    let best = 0;
+    for (const e of document.querySelectorAll('*')) {
+      if (e.children.length < 2) continue;
+      const b = e.getBoundingClientRect();
+      if (b.height < height * 0.8 || b.left > x0 + 8 || b.right < x1 - 8) continue;
+      const last = e.children[e.children.length - 1].getBoundingClientRect();
+      if (Math.abs(b.bottom - last.bottom) > 24) continue;
+      if (last.height > b.height * 0.35 || last.top < b.top + b.height * 0.5) continue;
+      best = Math.max(best, Math.ceil(y1 - last.top));
+    }
+    return best;
+  };
   return {
-    top: isDoc ? 0 : Math.max(0, r.top + el.clientTop),
-    left: isDoc ? 0 : Math.max(0, r.left + el.clientLeft),
-    height: isDoc ? innerHeight : el.clientHeight,
-    contentWidth: isDoc ? innerWidth : el.clientWidth,
+    top,
+    left,
+    height,
+    contentWidth,
+    leftBottom: isDoc ? 0 : pinBottom(0, left),
+    rightBottom: isDoc ? 0 : pinBottom(left + contentWidth, innerWidth),
     scrollHeight: el.scrollHeight,
     width: innerWidth,
     viewport: innerHeight,
@@ -138,32 +160,52 @@ async function fullPage(tab) {
   const canvas = new OffscreenCanvas(first.width, Math.round((m.viewport + extra) * s));
   const ctx = canvas.getContext('2d');
   // Full-width strips re-paste side chrome on every slice; only the scroller column scrolls.
-  // Side chrome once, then fill the hole with a solid sample from the strip's center —
-  // stretching the bottom row picks up borders / rounded-corner AA / transparency.
+  // Grow side column: sample the painted sidebar color from the first shot (CSS tokens often
+  // resolve to a parent gray that doesn't match the visible aside), then pin footer chrome.
   const crop = (img, sx, sy, sw, sh, dx, dy, dw = sw, dh = sh) => {
     if (sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0) return;
     ctx.drawImage(img, sx * s, sy * s, sw * s, sh * s, dx * s, dy * s, dw * s, dh * s);
   };
-  const sample = (x, y) => {
-    const c = new OffscreenCanvas(1, 1);
-    const cctx = c.getContext('2d');
-    cctx.drawImage(first, Math.floor(x * s), Math.floor(y * s), 1, 1, 0, 0, 1, 1);
-    const [r, g, b, a] = cctx.getImageData(0, 0, 1, 1).data;
-    return `rgba(${r},${g},${b},${a / 255})`;
-  };
-  const side = (sx, w, dx) => {
-    if (w <= 0) return;
-    crop(first, sx, m.top, w, m.height, dx, m.top);
-    if (extra > 0) {
-      ctx.fillStyle = sample(sx + w / 2, m.top + m.height / 2);
-      ctx.fillRect(dx * s, (m.top + m.height) * s, w * s, extra * s);
+  const probe = new OffscreenCanvas(1, 1);
+  const probeCtx = probe.getContext('2d', { willReadFrequently: true });
+  const sampleBg = (sx, w, bodyH) => {
+    // Upper body of the visible sidebar — matches what the eye sees, skips footer/icons.
+    const xs = [0.25, 0.5, 0.75].map((t) => sx + w * t);
+    const ys = [0.12, 0.22, 0.32].map((t) => m.top + bodyH * t);
+    for (const y of ys) {
+      for (const x of xs) {
+        probeCtx.clearRect(0, 0, 1, 1);
+        probeCtx.drawImage(first, Math.floor(x * s), Math.floor(y * s), 1, 1, 0, 0, 1, 1);
+        const [r, g, b, a] = probeCtx.getImageData(0, 0, 1, 1).data;
+        if (a > 250) return `rgb(${r},${g},${b})`;
+      }
     }
+    return null;
+  };
+  const side = (sx, w, dx, bottomH) => {
+    if (w <= 0) return;
+    bottomH = Math.max(0, Math.min(bottomH || 0, m.height - 1));
+    const bodyH = m.height - bottomH;
+    const bg = sampleBg(sx, w, bodyH);
+    if (bg) {
+      ctx.fillStyle = bg;
+      ctx.fillRect(dx * s, m.top * s, w * s, (m.height + extra) * s);
+    } else {
+      const bandY = m.top + Math.max(0, Math.min(bodyH - 1, Math.floor(bodyH * 0.2)));
+      crop(first, sx, bandY, w, 1, dx, m.top, w, m.height + extra);
+    }
+    // Keep border-r/l through the grown middle (fillRect is bg only).
+    const edge = sx === 0 ? w - 1 : 0;
+    const edgeY = m.top + Math.max(0, Math.min(bodyH - 1, Math.floor(bodyH * 0.2)));
+    crop(first, sx + edge, edgeY, 1, 1, dx + edge, m.top, 1, m.height + extra);
+    crop(first, sx, m.top, w, bodyH, dx, m.top);
+    if (bottomH > 0) crop(first, sx, m.top + bodyH, w, bottomH, dx, m.top + bodyH + extra);
   };
 
   crop(first, 0, 0, m.width, m.top, 0, 0); // UI above the scroller
-  side(0, m.left, 0);
+  side(0, m.left, 0, m.leftBottom);
   const right = m.left + m.contentWidth;
-  side(right, m.width - right, right);
+  side(right, m.width - right, right, m.rightBottom);
   for (const { top, img } of shots) crop(img, m.left, m.top, m.contentWidth, m.height, m.left, m.top + top);
   crop(first, 0, m.top + m.height, m.width, m.viewport - m.top - m.height, 0, m.top + m.height + extra); // UI below
   return canvas;
