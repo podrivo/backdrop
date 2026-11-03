@@ -21,14 +21,34 @@ async function encode(img, type) {
 
 // The functions below run in the page via chrome.scripting.
 
-function hideScrollbars() {
-  const s = document.createElement('style');
-  s.dataset.ssScrollbars = '';
-  // Next.js portal sits bottom-left and would be stretched with the sidebar column.
-  s.textContent =
-    '*{scrollbar-width:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}' +
-    'nextjs-portal,[data-nextjs-toast],[data-next-badge-root],#__next-build-watcher{display:none!important}';
-  document.documentElement.appendChild(s);
+// Scrollbars + Next.js badge. Badge lives in a shadow root whose :host { display } can beat a
+// document stylesheet — inline !important on the host is what actually hides it.
+function hideChrome() {
+  if (!document.querySelector('style[data-ss-chrome]')) {
+    const s = document.createElement('style');
+    s.dataset.ssChrome = '';
+    s.textContent =
+      '*{scrollbar-width:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}' +
+      'nextjs-portal,[data-nextjs-toast],[data-next-badge-root],#__next-build-watcher{display:none!important}';
+    document.documentElement.appendChild(s);
+  }
+  for (const el of document.querySelectorAll(
+    'nextjs-portal, [data-nextjs-toast], [data-next-badge-root], #__next-build-watcher',
+  )) {
+    if (!el.hasAttribute('data-ss-chrome-style')) {
+      el.setAttribute('data-ss-chrome-style', el.getAttribute('style') ?? '');
+    }
+    el.style.setProperty('display', 'none', 'important');
+    el.style.setProperty('visibility', 'hidden', 'important');
+  }
+}
+
+function showChrome() {
+  document.querySelector('style[data-ss-chrome]')?.remove();
+  for (const el of document.querySelectorAll('[data-ss-chrome-style]')) {
+    el.setAttribute('style', el.dataset.ssChromeStyle);
+    el.removeAttribute('data-ss-chrome-style');
+  }
 }
 
 // Picks what to scroll: the document, or (for app layouts where it doesn't scroll) the largest scrollable element.
@@ -80,7 +100,6 @@ function step(y, hideFixed) {
 }
 
 function restore(y) {
-  document.querySelector('style[data-ss-scrollbars]')?.remove();
   for (const el of document.querySelectorAll('[data-ss-style]')) {
     el.setAttribute('style', el.dataset.ssStyle);
     el.removeAttribute('data-ss-style');
@@ -97,11 +116,12 @@ async function fullPage(tab) {
   const run = (func, args = []) =>
     chrome.scripting.executeScript({ target: { tabId: tab.id }, func, args }).then(([r]) => r.result);
 
-  await run(hideScrollbars);
+  // hideChrome already ran in capture(); measure/step assume it's in place.
   const m = await run(measure);
   const shots = [];
   try {
     for (let y = 0; ; y += m.height) {
+      await run(hideChrome); // Next.js may remount the portal between slices
       const top = await run(step, [y, y > 0]);
       await sleep(550); // captureVisibleTab is limited to 2 calls/sec
       const url = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
@@ -199,16 +219,16 @@ async function capture({ tabId, full, bg }) {
   const tab = await chrome.tabs.get(tabId);
   const run = (func) =>
     chrome.scripting.executeScript({ target: { tabId: tab.id }, func }).then(([r]) => r.result);
+  // One path for every mode: hide chrome, wait a paint, capture, always restore.
+  await run(hideChrome);
+  await sleep(100);
   let shot;
-  if (full) {
-    shot = await fullPage(tab);
-  } else {
-    await run(hideScrollbars);
-    try {
-      shot = await bitmap(await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }));
-    } finally {
-      await run(() => document.querySelector('style[data-ss-scrollbars]')?.remove());
-    }
+  try {
+    shot = full
+      ? await fullPage(tab)
+      : await bitmap(await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }));
+  } finally {
+    await run(showChrome);
   }
   if (bg) save(await encode(await frame(shot, bg, tab.width), 'image/jpeg'), 'jpg');
   else save(await encode(shot, 'image/png'), 'png');
