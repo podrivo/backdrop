@@ -24,8 +24,10 @@ async function encode(img, type) {
 function hideScrollbars() {
   const s = document.createElement('style');
   s.dataset.ssScrollbars = '';
+  // Next.js portal sits bottom-left and would be stretched with the sidebar column.
   s.textContent =
-    '*{scrollbar-width:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}';
+    '*{scrollbar-width:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}' +
+    'nextjs-portal,[data-nextjs-toast],[data-next-badge-root],#__next-build-watcher{display:none!important}';
   document.documentElement.appendChild(s);
 }
 
@@ -44,9 +46,12 @@ function measure() {
   }
   el.setAttribute('data-ss-scroller', '');
   const isDoc = el === document.scrollingElement;
+  const r = el.getBoundingClientRect();
   return {
-    top: isDoc ? 0 : Math.max(0, el.getBoundingClientRect().top + el.clientTop),
+    top: isDoc ? 0 : Math.max(0, r.top + el.clientTop),
+    left: isDoc ? 0 : Math.max(0, r.left + el.clientLeft),
     height: isDoc ? innerHeight : el.clientHeight,
+    contentWidth: isDoc ? innerWidth : el.clientWidth,
     scrollHeight: el.scrollHeight,
     width: innerWidth,
     viewport: innerHeight,
@@ -112,11 +117,23 @@ async function fullPage(tab) {
   const extra = m.scrollHeight - m.height;
   const canvas = new OffscreenCanvas(first.width, Math.round((m.viewport + extra) * s));
   const ctx = canvas.getContext('2d');
-  const crop = (img, sy, h, dy) => ctx.drawImage(img, 0, sy * s, img.width, h * s, 0, dy * s, img.width, h * s);
+  // Full-width strips re-paste side chrome on every slice; only the scroller column scrolls.
+  // Side chrome is drawn once, then its bottom pixel is stretched so the column fills the hole.
+  const crop = (img, sx, sy, sw, sh, dx, dy, dw = sw, dh = sh) => {
+    if (sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0) return;
+    ctx.drawImage(img, sx * s, sy * s, sw * s, sh * s, dx * s, dy * s, dw * s, dh * s);
+  };
+  const side = (sx, w, dx) => {
+    crop(first, sx, m.top, w, m.height, dx, m.top);
+    if (extra > 0) crop(first, sx, m.top + m.height - 1, w, 1, dx, m.top + m.height, w, extra);
+  };
 
-  crop(first, 0, m.top, 0); // UI above the scroller
-  for (const { top, img } of shots) crop(img, m.top, m.height, m.top + top);
-  crop(first, m.top + m.height, m.viewport - m.top - m.height, m.top + m.height + extra); // UI below it
+  crop(first, 0, 0, m.width, m.top, 0, 0); // UI above the scroller
+  side(0, m.left, 0);
+  const right = m.left + m.contentWidth;
+  side(right, m.width - right, right);
+  for (const { top, img } of shots) crop(img, m.left, m.top, m.contentWidth, m.height, m.left, m.top + top);
+  crop(first, 0, m.top + m.height, m.width, m.viewport - m.top - m.height, 0, m.top + m.height + extra); // UI below
   return canvas;
 }
 
