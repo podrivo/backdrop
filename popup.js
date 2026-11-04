@@ -8,70 +8,83 @@ const walls = {
   'blue-hour': 'Blue Hour', snowcap: 'Snowcap', summit: 'Summit', valley: 'Valley',
   'pine-lake': 'Pine Lake', creek: 'Creek', leaves: 'Leaves', woodland: 'Woodland', highland: 'Highland',
 };
-const shuffle = (a) => a.map((v) => [Math.random(), v]).sort(([x], [y]) => x - y).map(([, v]) => v);
+const names = Object.keys(walls);
 
-const off = new Set(JSON.parse(localStorage.off ?? '[]'));
-const pinned = new Set(JSON.parse(localStorage.pins ?? '[]'));
-let shown = JSON.parse(localStorage.shown ?? '[]').filter((n) => n in walls);
+// Shuffle all overrides picks without clearing them, so turning it off restores the selection.
+let picks = JSON.parse(localStorage.picks ?? '[]').filter((n) => n in walls);
+let all = !picks.length || localStorage.all !== 'false';
+const mosaic = (ns) =>
+  [0, 1, 2, 3]
+    .map((i) => `url(${wall(ns[i % ns.length])}) ${(i % 2) * 100}% ${i > 1 ? 100 : 0}% / 50% 50% no-repeat`)
+    .join(', ');
+const shuffleArt = mosaic(['forest-road', 'emerald-bay', 'painted-canyon', 'fog']);
+const art = (ns) => (ns.length === 1 ? `url(${wall(ns[0])}) center / cover` : ns.length ? mosaic(ns) : shuffleArt);
+
+const bgOn = document.getElementById('bg-on');
+bgOn.checked = localStorage.bgOn !== 'false';
+bgOn.onchange = () => (localStorage.bgOn = bgOn.checked);
 
 const grid = document.getElementById('bg');
 const tile = document.getElementById('tile');
-const toggle = (set, c) => {
-  set.has(c.dataset.bg) ? set.delete(c.dataset.bg) : set.add(c.dataset.bg);
-  sync();
-};
-const chips = Array.from({ length: 9 }, () => {
+const boxes = {};
+for (const n of ['shuffle', ...names]) {
   const t = tile.content.cloneNode(true);
-  const [c, pin] = t.querySelectorAll('button');
-  c.onclick = () => toggle(off, c);
-  pin.onclick = () => toggle(pinned, c);
+  const l = t.querySelector('label');
+  t.querySelector(n === 'shuffle' ? '.check' : '.shuffle').remove();
+  l.style.setProperty('--wall', n === 'shuffle' ? shuffleArt : art([n]));
+  t.querySelector('span').textContent = n === 'shuffle' ? 'Shuffle all' : walls[n];
+  boxes[n] = t.querySelector('input');
+  boxes[n].onchange = () => {
+    if (n === 'shuffle') all = !all;
+    else if (all) {
+      all = false;
+      if (!picks.includes(n)) picks = [...picks, n];
+    } else picks = picks.includes(n) ? picks.filter((p) => p !== n) : [...picks, n];
+    if (!picks.length) all = true;
+    bgOn.checked = true;
+    localStorage.bgOn = true;
+    sync();
+  };
   grid.append(t);
-  return c;
-});
+}
 
-const all = document.getElementById('all');
+const thumb = document.querySelector('.thumb');
+const toggleAll = document.getElementById('toggle-all');
+toggleAll.onclick = () => {
+  picks = toggleAll.textContent === 'Select all' ? [...names] : [];
+  all = !picks.length;
+  sync();
+};
 const sync = () => {
-  chips.forEach((c) => {
-    c.ariaPressed = !off.has(c.dataset.bg);
-    c.nextElementSibling.ariaPressed = pinned.has(c.dataset.bg);
-  });
-  all.textContent = chips.every((c) => !off.has(c.dataset.bg)) ? 'Disable all' : 'Enable all';
-  localStorage.off = JSON.stringify([...off]);
-  localStorage.pins = JSON.stringify([...pinned].filter((n) => shown.includes(n)));
-  localStorage.shown = JSON.stringify(shown);
+  localStorage.picks = JSON.stringify(picks);
+  localStorage.all = all;
+  for (const n in boxes) boxes[n].checked = n === 'shuffle' ? all : picks.includes(n);
+  grid.classList.toggle('all', all);
+  toggleAll.textContent = !all && picks.length === names.length ? 'Unselect all' : 'Select all';
+  thumb.style.setProperty('--wall', art(all ? [] : picks));
+  document.getElementById('pick').textContent =
+    all ? 'Shuffle all' : picks.length === 1 ? walls[picks[0]] : `Shuffle ${picks.length} photos`;
 };
+sync();
 
-// Keeps pinned tiles in their slot and refills the rest, preferring ones not currently shown.
-const roll = () => {
-  const fresh = [...shuffle(Object.keys(walls).filter((n) => !shown.includes(n))), ...shuffle(shown.filter((n) => !pinned.has(n)))];
-  shown = chips.map((_, i) => (pinned.has(shown[i]) ? shown[i] : fresh.shift()));
-  chips.forEach((c, i) => {
-    c.dataset.bg = shown[i];
-    c.textContent = walls[shown[i]];
-    c.style.setProperty('--wall', `url(${wall(shown[i])})`);
-    c.nextElementSibling.ariaLabel = `Pin ${walls[shown[i]]}`;
-  });
-  sync();
+const main = document.getElementById('main');
+const custom = document.getElementById('custom');
+const open = document.getElementById('open');
+const show = (picker) => {
+  main.hidden = picker;
+  custom.hidden = !picker;
+  (picker ? custom.querySelector(':checked') : open).focus();
 };
-
-all.onclick = () => {
-  const on = all.textContent === 'Enable all';
-  chips.forEach((c) => (on ? off.delete(c.dataset.bg) : off.add(c.dataset.bg)));
-  sync();
-};
-document.getElementById('refresh').onclick = () => {
-  off.clear();
-  roll();
-};
-roll();
+open.onclick = () => show(true);
+document.getElementById('back').onclick = () => show(false);
 
 document.querySelectorAll('[data-full]').forEach((b) => {
   b.onclick = async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const pool = shown.filter((n) => !off.has(n));
+    const pool = all ? names : picks;
     const name = pool[Math.floor(Math.random() * pool.length)];
     // Closing before the service worker receives the message silently drops it.
-    await chrome.runtime.sendMessage({ tabId: tab.id, full: b.dataset.full === 'true', bg: name && wall(name) });
+    await chrome.runtime.sendMessage({ tabId: tab.id, full: b.dataset.full === 'true', bg: bgOn.checked ? wall(name) : undefined });
     window.close();
   };
 });
