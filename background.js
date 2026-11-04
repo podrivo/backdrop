@@ -284,8 +284,8 @@ async function capture({ tabId, full, bg }) {
   } finally {
     await run(showChrome);
   }
-  if (bg) save(await encode(await frame(shot, bg, tab.width), 'image/jpeg'), 'jpg');
-  else save(await encode(shot, 'image/png'), 'png');
+  if (bg) await save(await encode(await frame(shot, bg, tab.width), 'image/jpeg'), 'jpg');
+  else await save(await encode(shot, 'image/png'), 'png');
 }
 
 // The badge shows progress (full-page captures take a while) and surfaces errors instead of failing silently.
