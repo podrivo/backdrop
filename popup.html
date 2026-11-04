@@ -51,7 +51,7 @@
     .capture { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     [data-full] {
       display: grid; justify-items: center; gap: 8px; padding-block: 24px;
-      border-radius: 28px; corner-shape: squircle; font-size: 15px; line-height: 1.15; text-align: center;
+      border-radius: 40px; corner-shape: squircle; font-size: 15px; line-height: 1.15; text-align: center;
       transition: background 0.12s, border-color 0.12s, transform 0.12s;
     }
     [data-full] svg { color: var(--ink-soft); transition: color 0.12s; }
@@ -63,22 +63,20 @@
     section { display: grid; gap: 8px; }
     .setting {
       display: grid; margin-top: 4px; border: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
-      border-radius: 28px; corner-shape: squircle;
+      border-radius: 40px; corner-shape: squircle;
       background: color-mix(in srgb, var(--paper-2) 55%, var(--paper)); overflow: hidden;
       transition: border-color 0.12s;
     }
     .setting:hover { border-color: var(--line); }
     .setting > label, #open {
-      display: flex; align-items: center; gap: 10px; padding: 9px 12px; font-weight: 500;
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-weight: 500;
       color: var(--ink-soft); transition: color 0.12s, background 0.12s;
     }
     .setting > label { justify-content: space-between; cursor: pointer; }
     .setting:hover > label, .setting:hover #open { color: var(--ink); }
     #open { border: 0; border-radius: 0; background: none; text-align: left; }
     #open:hover { background: color-mix(in srgb, var(--paper-2) 80%, var(--paper)); }
-    #open span:not(.thumb) { display: grid; flex: 1; }
-    small { font-size: var(--small); font-weight: 400; color: var(--ink-soft); transition: color 0.12s; }
-    .setting:hover small { color: var(--ink); }
+    #pick { flex: 1; font-size: var(--small); font-weight: 400; }
     #open .chev { color: inherit; transition: color 0.12s, rotate 0.15s; }
     #open[aria-expanded='true'] .chev { rotate: 180deg; }
     .toolbar {
@@ -108,12 +106,12 @@
     #panel { display: grid; gap: 8px; padding: 8px; max-height: 300px; overflow: auto; }
     #bg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     #bg label {
-      position: relative; display: grid; gap: 5px; padding: 5px 5px 6px;
-      border: 1px solid var(--line); border-radius: 10px; corner-shape: squircle; background: var(--paper);
+      position: relative; display: grid; gap: 5px; padding: 0 0 6px;
+      border: 1px solid var(--line); border-radius: 14px; corner-shape: squircle; background: var(--paper);
       font-size: var(--small); font-weight: 500; color: var(--ink-soft); text-align: center; white-space: nowrap;
       cursor: pointer; transition: border-color 0.12s;
     }
-    #bg label::before { content: ''; height: 44px; border-radius: 8px; corner-shape: squircle; background: var(--wall); }
+    #bg label::before { content: ''; height: 44px; border-radius: 10px; corner-shape: squircle; background: var(--wall); }
     #bg label:hover { border-color: var(--ink-soft); }
     #bg label:has(:checked) { border-color: var(--accent); color: var(--ink); }
     #bg label:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -151,7 +149,7 @@
       </label>
       <button id="open" aria-expanded="false" aria-controls="bg">
         <span class="thumb"></span>
-        <span>Customize <small id="pick"></small></span>
+        <span id="pick"></span>
         <svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
       <div id="panel" hidden>

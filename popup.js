@@ -82,7 +82,7 @@ const sync = () => {
   }
   thumb.style.setProperty('--wall', art(all ? [] : picks));
   document.getElementById('pick').textContent =
-    all ? 'Shuffle all' : picks.length === 1 ? walls[picks[0]] : `Shuffle ${picks.length} photos`;
+    all ? 'Shuffle all photos' : picks.length === 1 ? `Use ${walls[picks[0]]}` : `Shuffle ${picks.length} photos`;
 };
 sync();
 
