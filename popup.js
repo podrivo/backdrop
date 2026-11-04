@@ -13,10 +13,13 @@ const names = Object.keys(walls);
 // Shuffle all overrides picks without clearing them, so turning it off restores the selection.
 let picks = JSON.parse(localStorage.picks ?? '[]').filter((n) => n in walls);
 let all = !picks.length || localStorage.all !== 'false';
+const layer = (n, x, y, w, h) => `url(${wall(n)}) ${x}% ${y}% / ${w}% ${h}% no-repeat`;
 const mosaic = (ns) =>
-  [0, 1, 2, 3]
-    .map((i) => `url(${wall(ns[i % ns.length])}) ${(i % 2) * 100}% ${i > 1 ? 100 : 0}% / 50% 50% no-repeat`)
-    .join(', ');
+  ns.length === 2
+    ? [layer(ns[0], 0, 50, 50, 100), layer(ns[1], 100, 50, 50, 100)].join(', ')
+    : ns.length === 3
+      ? [layer(ns[0], 0, 0, 50, 50), layer(ns[1], 100, 0, 50, 50), layer(ns[2], 50, 100, 100, 50)].join(', ')
+      : [0, 1, 2, 3].map((i) => layer(ns[i % ns.length], (i % 2) * 100, i > 1 ? 100 : 0, 50, 50)).join(', ');
 const shuffleArt = mosaic(['forest-road', 'emerald-bay', 'braies', 'fog']);
 const art = (ns) => (ns.length === 1 ? `url(${wall(ns[0])}) center / cover` : ns.length ? mosaic(ns) : shuffleArt);
 
@@ -69,11 +72,11 @@ const sync = () => {
 sync();
 
 const open = document.getElementById('open');
-const extras = [document.querySelector('.toolbar'), document.getElementById('bg')];
+const panel = document.getElementById('panel');
 open.onclick = () => {
   const on = open.getAttribute('aria-expanded') !== 'true';
   open.setAttribute('aria-expanded', on);
-  extras.forEach((el) => (el.hidden = !on));
+  panel.hidden = !on;
 };
 
 document.querySelectorAll('[data-full]').forEach((b) => {

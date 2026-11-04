@@ -67,7 +67,7 @@
     #open[aria-expanded='true'] .chev { rotate: 90deg; }
     .toolbar {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      padding: 8px 12px; border-top: 1px solid var(--line); font-size: var(--small); color: var(--ink-soft);
+      padding: 0 4px 2px; font-size: var(--small); color: var(--ink-soft);
     }
     #toggle-all { padding: 0; border: 0; background: none; font: inherit; color: inherit; }
     #toggle-all:hover { color: var(--ink); }
@@ -83,12 +83,12 @@
     [role='switch']:checked::before { transform: translateX(12px); }
     .thumb { flex: none; width: 36px; height: 26px; border-radius: 5px; background: var(--wall); }
     .setting:has([role='switch']:not(:checked)) #open,
-    .setting:has([role='switch']:not(:checked)) .toolbar,
-    .setting:has([role='switch']:not(:checked)) #bg { opacity: 0.45; filter: grayscale(1); pointer-events: none; }
-    #bg {
-      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
-      padding: 0 8px 10px; border-top: 1px solid var(--line); max-height: 280px; overflow: auto;
+    .setting:has([role='switch']:not(:checked)) #panel { opacity: 0.45; filter: grayscale(1); pointer-events: none; }
+    #panel {
+      display: grid; gap: 8px; padding: 8px; border-top: 1px solid var(--line);
+      max-height: 300px; overflow: auto;
     }
+    #bg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     #bg label {
       position: relative; display: grid; gap: 5px; padding: 5px 5px 6px;
       border: 1px solid var(--line); border-radius: 10px; background: var(--paper);
@@ -134,11 +134,13 @@
         <span>Customize <small id="pick"></small></span>
         <svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
       </button>
-      <div class="toolbar" hidden>
-        <span id="total"></span>
-        <button id="toggle-all"></button>
+      <div id="panel" hidden>
+        <div class="toolbar">
+          <span id="total"></span>
+          <button id="toggle-all"></button>
+        </div>
+        <div id="bg" role="group" aria-label="Background images to shuffle between"></div>
       </div>
-      <div id="bg" role="group" aria-label="Background images to shuffle between" hidden></div>
     </div>
   </section>
   <template id="tile">
