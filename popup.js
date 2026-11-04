@@ -1,12 +1,12 @@
 const wall = (name) => `backgrounds/${name}.webp`;
 
 const walls = {
-  'forest-road': 'Forest Road', 'red-peaks': 'Red Peaks', dunes: 'Dunes', canyon: 'Canyon',
+  'forest-road': 'Forest Road', dunes: 'Dunes', canyon: 'Canyon',
   'autumn-peaks': 'Autumn', fittonia: 'Fittonia', fog: 'Fog', 'misty-peaks': 'Misty Peaks',
-  'painted-canyon': 'Painted', 'shore-house': 'Shore', 'emerald-bay': 'Emerald Bay', mesa: 'Mesa',
-  yosemite: 'Yosemite', canopy: 'Canopy', 'durdle-door': 'Durdle Door', sheep: 'Sheep',
+  'shore-house': 'Shore', 'emerald-bay': 'Emerald Bay', mesa: 'Mesa',
+  yosemite: 'Yosemite', canopy: 'Canopy', 'durdle-door': 'Durdle Door',
   'blue-hour': 'Blue Hour', snowcap: 'Snowcap', summit: 'Summit', valley: 'Valley',
-  'pine-lake': 'Pine Lake', creek: 'Creek', leaves: 'Leaves', woodland: 'Woodland', highland: 'Highland',
+  creek: 'Creek', woodland: 'Woodland', highland: 'Highland', braies: 'Braies',
 };
 const names = Object.keys(walls);
 
@@ -17,7 +17,7 @@ const mosaic = (ns) =>
   [0, 1, 2, 3]
     .map((i) => `url(${wall(ns[i % ns.length])}) ${(i % 2) * 100}% ${i > 1 ? 100 : 0}% / 50% 50% no-repeat`)
     .join(', ');
-const shuffleArt = mosaic(['forest-road', 'emerald-bay', 'painted-canyon', 'fog']);
+const shuffleArt = mosaic(['forest-road', 'emerald-bay', 'braies', 'fog']);
 const art = (ns) => (ns.length === 1 ? `url(${wall(ns[0])}) center / cover` : ns.length ? mosaic(ns) : shuffleArt);
 
 const bgOn = document.getElementById('bg-on');

@@ -70,7 +70,6 @@ Background photos from [Unsplash](https://unsplash.com), used under the
 | Background | Photo by |
 | --- | --- |
 | Forest Road | [Patrick Dzieza](https://unsplash.com/photos/qJhwq8vulK4) |
-| Red Peaks | [John Towner](https://unsplash.com/photos/JgOeRuGD_Y4) |
 | Dunes | [Keith Hardy](https://unsplash.com/photos/UVyavSwslOg) |
 | Canyon | [Jack Millard](https://unsplash.com/photos/zjyP-UYI-ko) |
 | Meadow | [Damian Markutt](https://unsplash.com/photos/7N998BynnFw) |
@@ -78,3 +77,4 @@ Background photos from [Unsplash](https://unsplash.com), used under the
 | Fittonia | [Josefin](https://unsplash.com/photos/sbovFdDUk3s) |
 | Tower | [Lai Man Nung](https://unsplash.com/photos/BtzBvzbTYxo) |
 | Fog | [Dave Hoefler](https://unsplash.com/photos/od287vQyufw) |
+| Braies | [Joel Vodell](https://unsplash.com/photos/TApAkERW5pQ) |
