@@ -19,8 +19,16 @@ const mosaic = (ns) =>
     ? [layer(ns[0], 0, 50, 50, 100), layer(ns[1], 100, 50, 50, 100)].join(', ')
     : ns.length === 3
       ? [layer(ns[0], 0, 0, 50, 50), layer(ns[1], 100, 0, 50, 50), layer(ns[2], 50, 100, 100, 50)].join(', ')
-      : [0, 1, 2, 3].map((i) => layer(ns[i % ns.length], (i % 2) * 100, i > 1 ? 100 : 0, 50, 50)).join(', ');
-const shuffleArt = mosaic(['forest-road', 'emerald-bay', 'braies', 'fog']);
+      : ns.slice(0, 4).map((n, i) => layer(n, (i % 2) * 100, i > 1 ? 100 : 0, 50, 50)).join(', ');
+const sample = (ns, n = 4) => {
+  const a = ns.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, Math.min(n, a.length));
+};
+let shuffleArt = mosaic(sample(names));
 const art = (ns) => (ns.length === 1 ? `url(${wall(ns[0])}) center / cover` : ns.length ? mosaic(ns) : shuffleArt);
 
 const bgOn = document.getElementById('bg-on');
@@ -30,12 +38,14 @@ bgOn.onchange = () => (localStorage.bgOn = bgOn.checked);
 const grid = document.getElementById('bg');
 const tile = document.getElementById('tile');
 const boxes = {};
+let shuffleLabel;
 for (const n of ['shuffle', ...names]) {
   const t = tile.content.cloneNode(true);
   const l = t.querySelector('label');
   t.querySelector(n === 'shuffle' ? '.check' : '.shuffle').remove();
   l.style.setProperty('--wall', n === 'shuffle' ? shuffleArt : art([n]));
   t.querySelector('span').textContent = n === 'shuffle' ? 'Shuffle all' : walls[n];
+  if (n === 'shuffle') shuffleLabel = l;
   boxes[n] = t.querySelector('input');
   boxes[n].onchange = () => {
     if (n === 'shuffle') all = !all;
@@ -65,6 +75,10 @@ const sync = () => {
   grid.classList.toggle('all', all);
   toggleAll.textContent = !all && picks.length === names.length ? 'Unselect all' : 'Select all';
   document.getElementById('total').textContent = `${names.length} photos`;
+  if (all) {
+    shuffleArt = mosaic(sample(names));
+    shuffleLabel.style.setProperty('--wall', shuffleArt);
+  }
   thumb.style.setProperty('--wall', art(all ? [] : picks));
   document.getElementById('pick').textContent =
     all ? 'Shuffle all' : picks.length === 1 ? walls[picks[0]] : `Shuffle ${picks.length} photos`;
