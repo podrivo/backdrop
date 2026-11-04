@@ -52,14 +52,18 @@
     [data-full] svg { color: var(--ink-soft); }
     section { display: grid; gap: 8px; }
     .setting {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      margin-top: 4px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px;
-      background: var(--paper-2); font-weight: 500;
+      display: grid; margin-top: 4px; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--paper-2); overflow: hidden;
     }
-    #open { display: flex; align-items: center; gap: 10px; text-align: left; }
+    .setting > label, #open {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px; font-weight: 500;
+    }
+    .setting > label { justify-content: space-between; cursor: pointer; }
+    #open { border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; text-align: left; }
+    #open:hover { background: var(--paper); }
     #open span:not(.thumb) { display: grid; flex: 1; }
     small { font-size: var(--small); font-weight: 400; color: var(--ink-soft); }
-    .chev { margin-left: auto; color: var(--ink-soft); }
+    .chev { color: var(--ink-soft); }
     [role='switch'] {
       appearance: none; flex: none; margin: 0; width: 30px; height: 18px; border-radius: 9px;
       background: var(--line); cursor: pointer; transition: background 0.15s;
@@ -75,8 +79,8 @@
     header button:hover { color: var(--ink); }
     #back { display: grid; padding: 4px 6px; }
     #toggle-all { margin-left: auto; margin-right: -8px; font-size: var(--small); }
-    .thumb { flex: none; width: 36px; height: 26px; border-radius: 5px; background: var(--wall); transition: opacity 0.2s, filter 0.2s; }
-    #main:has([role='switch']:not(:checked)) .thumb { opacity: 0.4; filter: grayscale(1); }
+    .thumb { flex: none; width: 36px; height: 26px; border-radius: 5px; background: var(--wall); }
+    .setting:has([role='switch']:not(:checked)) #open { opacity: 0.45; filter: grayscale(1); }
     #bg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     #bg label {
       position: relative; display: grid; gap: 5px; padding: 5px 5px 6px;
@@ -113,15 +117,17 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="12" height="20" x="6" y="2" rx="2"/></svg>
       Entire page
     </button>
-    <label class="setting">
-      Background image
-      <input type="checkbox" role="switch" id="bg-on" />
-    </label>
-    <button id="open">
-      <span class="thumb"></span>
-      <span>Customize <small id="pick"></small></span>
-      <svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-    </button>
+    <div class="setting">
+      <label>
+        Background image
+        <input type="checkbox" role="switch" id="bg-on" />
+      </label>
+      <button id="open">
+        <span class="thumb"></span>
+        <span>Customize <small id="pick"></small></span>
+        <svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
   </section>
   <section id="custom" hidden>
     <header>
