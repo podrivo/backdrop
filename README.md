@@ -64,8 +64,8 @@ injected into the page beyond the scroll and style tweaks, which are undone when
 
 ## Credits
 
-Background photos from [Unsplash](https://unsplash.com), used under the
-[Unsplash License](https://unsplash.com/license).
+The code is [MIT](LICENSE). Background photos from [Unsplash](https://unsplash.com)
+are not covered by it; they stay under the [Unsplash License](backgrounds/LICENSE).
 
 | Background | Photo by |
 | --- | --- |
