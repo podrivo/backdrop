@@ -78,3 +78,5 @@ Background photos from [Unsplash](https://unsplash.com), used under the
 | Tower | [Lai Man Nung](https://unsplash.com/photos/BtzBvzbTYxo) |
 | Fog | [Dave Hoefler](https://unsplash.com/photos/od287vQyufw) |
 | Braies | [Joel Vodell](https://unsplash.com/photos/TApAkERW5pQ) |
+| Sørvágsvatn | [Annie Spratt](https://unsplash.com/photos/vI-uFNolpLA) |
+| Durdle Door | [Toby Elliott](https://unsplash.com/photos/wMr41_LZp0k) |

@@ -7,6 +7,7 @@ const walls = {
   yosemite: 'Yosemite', canopy: 'Canopy', 'durdle-door': 'Durdle Door',
   'blue-hour': 'Blue Hour', snowcap: 'Snowcap', summit: 'Summit', valley: 'Valley',
   creek: 'Creek', woodland: 'Woodland', highland: 'Highland', braies: 'Braies',
+  sorvagsvatn: 'Sørvágsvatn',
 };
 const names = Object.keys(walls);
 
