@@ -29,3 +29,5 @@ Chrome versions are 1–4 dot-separated integers (e.g. `1.0`, `1.2.3`). Use `MAJ
 If the current version has fewer than 3 parts, pad with zeros first (`1.0` → `1.0.0`), then bump.
 
 Mention the version in one line of the reply: `Version: 1.0.1 → 1.0.2` on bump, or `Version stays 1.0.2` when already bumped.
+
+That line must use the numbers from the check **this turn**. A version said earlier in the chat is stale: the user commits outside the chat, so HEAD can move past it (chat still says 1.8.0, git is already 1.8.4). If both sides of the check match that newer HEAD, this is a new batch — bump from HEAD. If you did not run the check this turn, do not state a version.
