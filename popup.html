@@ -48,39 +48,60 @@
     button:hover { border-color: var(--ink-soft); }
     button:active { transform: translateY(1px); }
     [hidden] { display: none !important; }
-    [data-full] { display: flex; flex-direction: row-reverse; align-items: center; justify-content: space-between; gap: 8px; }
-    [data-full] svg { color: var(--ink-soft); }
+    .capture { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    [data-full] {
+      display: grid; justify-items: center; gap: 8px; padding-block: 24px;
+      border-radius: 28px; corner-shape: squircle; font-size: 15px; line-height: 1.15; text-align: center;
+      transition: background 0.12s, border-color 0.12s, transform 0.12s;
+    }
+    [data-full] svg { color: var(--ink-soft); transition: color 0.12s; }
+    [data-full]:hover {
+      background: color-mix(in srgb, var(--paper-2) 95%, #fff);
+      border-color: color-mix(in srgb, var(--line) 90%, #fff);
+    }
+    [data-full]:hover svg { color: var(--ink); }
     section { display: grid; gap: 8px; }
     .setting {
-      display: grid; margin-top: 4px; border: 1px solid color-mix(in srgb, var(--line) 50%, transparent); border-radius: 10px;
+      display: grid; margin-top: 4px; border: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
+      border-radius: 28px; corner-shape: squircle;
       background: color-mix(in srgb, var(--paper-2) 55%, var(--paper)); overflow: hidden;
+      transition: border-color 0.12s;
     }
+    .setting:hover { border-color: var(--line); }
     .setting > label, #open {
       display: flex; align-items: center; gap: 10px; padding: 9px 12px; font-weight: 500;
+      color: var(--ink-soft); transition: color 0.12s, background 0.12s;
     }
     .setting > label { justify-content: space-between; cursor: pointer; }
+    .setting:hover > label, .setting:hover #open { color: var(--ink); }
     #open { border: 0; border-radius: 0; background: none; text-align: left; }
     #open:hover { background: color-mix(in srgb, var(--paper-2) 80%, var(--paper)); }
     #open span:not(.thumb) { display: grid; flex: 1; }
-    small { font-size: var(--small); font-weight: 400; color: var(--ink-soft); }
-    #open .chev { color: var(--ink-soft); transition: rotate 0.15s; }
+    small { font-size: var(--small); font-weight: 400; color: var(--ink-soft); transition: color 0.12s; }
+    .setting:hover small { color: var(--ink); }
+    #open .chev { color: inherit; transition: color 0.12s, rotate 0.15s; }
     #open[aria-expanded='true'] .chev { rotate: 180deg; }
     .toolbar {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       padding: 0 4px 2px; font-size: var(--small); color: var(--ink-soft);
     }
-    #toggle-all { padding: 0; border: 0; background: none; font: inherit; color: inherit; }
+    #toggle-all {
+      padding: 0; border: 0; background: none; font: inherit; color: inherit;
+      text-decoration: underline; text-underline-offset: 2px;
+    }
     #toggle-all:hover { color: var(--ink); }
     [role='switch'] {
       appearance: none; flex: none; margin: 0; width: 30px; height: 18px; border-radius: 9px;
-      background: var(--line); cursor: pointer; transition: background 0.15s;
+      background: color-mix(in srgb, var(--line) 50%, transparent); cursor: pointer; transition: background 0.15s;
     }
     [role='switch']::before {
       content: ''; display: block; width: 14px; height: 14px; margin: 2px; border-radius: 50%;
       background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.25); transition: transform 0.15s;
     }
-    [role='switch']:checked { background: var(--accent); }
+    [role='switch']:checked { background: color-mix(in srgb, var(--accent) 55%, transparent); }
     [role='switch']:checked::before { transform: translateX(12px); }
+    .setting:hover [role='switch'] { background: var(--line); }
+    .setting:hover [role='switch']:checked { background: var(--accent); }
     .thumb { flex: none; width: 36px; height: 26px; border-radius: 5px; background: var(--wall); }
     .setting:has([role='switch']:not(:checked)) #open,
     .setting:has([role='switch']:not(:checked)) #panel { opacity: 0.45; filter: grayscale(1); pointer-events: none; }
@@ -113,14 +134,16 @@
 </head>
 <body>
   <section id="main">
-    <button data-full="false">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
-      Current screen
-    </button>
-    <button data-full="true">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="12" height="20" x="6" y="2" rx="2"/></svg>
-      Entire page
-    </button>
+    <div class="capture">
+      <button data-full="false">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+        Current<br />screen
+      </button>
+      <button data-full="true">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="12" height="20" x="6" y="2" rx="2"/></svg>
+        Entire<br />page
+      </button>
+    </div>
     <div class="setting">
       <label>
         Background image
