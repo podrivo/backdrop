@@ -63,7 +63,14 @@
     #open:hover { background: var(--paper); }
     #open span:not(.thumb) { display: grid; flex: 1; }
     small { font-size: var(--small); font-weight: 400; color: var(--ink-soft); }
-    .chev { color: var(--ink-soft); }
+    .chev { color: var(--ink-soft); transition: rotate 0.15s; }
+    #open[aria-expanded='true'] .chev { rotate: 90deg; }
+    .toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 8px 12px; border-top: 1px solid var(--line); font-size: var(--small); color: var(--ink-soft);
+    }
+    #toggle-all { padding: 0; border: 0; background: none; font: inherit; color: inherit; }
+    #toggle-all:hover { color: var(--ink); }
     [role='switch'] {
       appearance: none; flex: none; margin: 0; width: 30px; height: 18px; border-radius: 9px;
       background: var(--line); cursor: pointer; transition: background 0.15s;
@@ -74,17 +81,17 @@
     }
     [role='switch']:checked { background: var(--accent); }
     [role='switch']:checked::before { transform: translateX(12px); }
-    header { display: flex; align-items: center; gap: 4px; margin: -4px 0 2px -6px; }
-    header button { padding: 4px 8px; border: 0; background: none; color: var(--ink-soft); }
-    header button:hover { color: var(--ink); }
-    #back { display: grid; padding: 4px 6px; }
-    #toggle-all { margin-left: auto; margin-right: -8px; font-size: var(--small); }
     .thumb { flex: none; width: 36px; height: 26px; border-radius: 5px; background: var(--wall); }
-    .setting:has([role='switch']:not(:checked)) #open { opacity: 0.45; filter: grayscale(1); }
-    #bg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .setting:has([role='switch']:not(:checked)) #open,
+    .setting:has([role='switch']:not(:checked)) .toolbar,
+    .setting:has([role='switch']:not(:checked)) #bg { opacity: 0.45; filter: grayscale(1); pointer-events: none; }
+    #bg {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+      padding: 0 8px 10px; border-top: 1px solid var(--line); max-height: 280px; overflow: auto;
+    }
     #bg label {
       position: relative; display: grid; gap: 5px; padding: 5px 5px 6px;
-      border: 1px solid var(--line); border-radius: 10px; background: var(--paper-2);
+      border: 1px solid var(--line); border-radius: 10px; background: var(--paper);
       font-size: var(--small); font-weight: 500; color: var(--ink-soft); text-align: center; white-space: nowrap;
       cursor: pointer; transition: border-color 0.12s;
     }
@@ -122,21 +129,17 @@
         Background image
         <input type="checkbox" role="switch" id="bg-on" />
       </label>
-      <button id="open">
+      <button id="open" aria-expanded="false" aria-controls="bg">
         <span class="thumb"></span>
         <span>Customize <small id="pick"></small></span>
         <svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
       </button>
+      <div class="toolbar" hidden>
+        <span id="total"></span>
+        <button id="toggle-all"></button>
+      </div>
+      <div id="bg" role="group" aria-label="Background images to shuffle between" hidden></div>
     </div>
-  </section>
-  <section id="custom" hidden>
-    <header>
-      <button id="back" aria-label="Back">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-      </button>
-      <button id="toggle-all"></button>
-    </header>
-    <div id="bg" role="group" aria-label="Background images to shuffle between"></div>
   </section>
   <template id="tile">
     <label>

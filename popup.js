@@ -61,22 +61,20 @@ const sync = () => {
   for (const n in boxes) boxes[n].checked = n === 'shuffle' ? all : picks.includes(n);
   grid.classList.toggle('all', all);
   toggleAll.textContent = !all && picks.length === names.length ? 'Unselect all' : 'Select all';
+  document.getElementById('total').textContent = `${names.length} photos`;
   thumb.style.setProperty('--wall', art(all ? [] : picks));
   document.getElementById('pick').textContent =
     all ? 'Shuffle all' : picks.length === 1 ? walls[picks[0]] : `Shuffle ${picks.length} photos`;
 };
 sync();
 
-const main = document.getElementById('main');
-const custom = document.getElementById('custom');
 const open = document.getElementById('open');
-const show = (picker) => {
-  main.hidden = picker;
-  custom.hidden = !picker;
-  (picker ? custom.querySelector(':checked') : open).focus();
+const extras = [document.querySelector('.toolbar'), document.getElementById('bg')];
+open.onclick = () => {
+  const on = open.getAttribute('aria-expanded') !== 'true';
+  open.setAttribute('aria-expanded', on);
+  extras.forEach((el) => (el.hidden = !on));
 };
-open.onclick = () => show(true);
-document.getElementById('back').onclick = () => show(false);
 
 document.querySelectorAll('[data-full]').forEach((b) => {
   b.onclick = async () => {
