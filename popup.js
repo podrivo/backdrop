@@ -45,7 +45,7 @@ for (const n of ['shuffle', ...names]) {
   const l = t.querySelector('label');
   t.querySelector(n === 'shuffle' ? '.check' : '.shuffle').remove();
   l.style.setProperty('--wall', n === 'shuffle' ? shuffleArt : art([n]));
-  t.querySelector('span').textContent = n === 'shuffle' ? 'Shuffle all' : walls[n];
+  l.setAttribute('aria-label', n === 'shuffle' ? 'Shuffle all' : walls[n]);
   if (n === 'shuffle') shuffleLabel = l;
   boxes[n] = t.querySelector('input');
   boxes[n].onchange = () => {
@@ -82,7 +82,7 @@ const sync = () => {
   }
   thumb.style.setProperty('--wall', art(all ? [] : picks));
   document.getElementById('pick').textContent =
-    all ? 'Shuffle all photos' : picks.length === 1 ? `Use ${walls[picks[0]]}` : `Shuffle ${picks.length} photos`;
+    all ? 'Shuffle all photos' : picks.length === 1 ? 'Single photo' : `Shuffle ${picks.length} photos`;
 };
 sync();
 
