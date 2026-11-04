@@ -4,10 +4,10 @@ const walls = {
   'forest-road': 'Forest Road', dunes: 'Dunes', canyon: 'Canyon',
   'autumn-peaks': 'Autumn', fittonia: 'Fittonia', fog: 'Fog', 'misty-peaks': 'Misty Peaks',
   'shore-house': 'Shore', 'emerald-bay': 'Emerald Bay', mesa: 'Mesa',
-  yosemite: 'Yosemite', canopy: 'Canopy', 'durdle-door': 'Durdle Door',
+  yosemite: 'Yosemite', canopy: 'Canopy',
   'blue-hour': 'Blue Hour', snowcap: 'Snowcap', summit: 'Summit', valley: 'Valley',
   creek: 'Creek', woodland: 'Woodland', highland: 'Highland', braies: 'Braies',
-  sorvagsvatn: 'Sørvágsvatn',
+  sorvagsvatn: 'Sørvágsvatn', pilatus: 'Pilatus', laki: 'Laki',
 };
 const names = Object.keys(walls);
 

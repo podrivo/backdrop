@@ -79,4 +79,5 @@ Background photos from [Unsplash](https://unsplash.com), used under the
 | Fog | [Dave Hoefler](https://unsplash.com/photos/od287vQyufw) |
 | Braies | [Joel Vodell](https://unsplash.com/photos/TApAkERW5pQ) |
 | Sørvágsvatn | [Annie Spratt](https://unsplash.com/photos/vI-uFNolpLA) |
-| Durdle Door | [Toby Elliott](https://unsplash.com/photos/wMr41_LZp0k) |
+| Pilatus | [Kevin Schmid](https://unsplash.com/photos/zdsMxyby0nE) |
+| Laki | [Tomáš Malík](https://unsplash.com/photos/Oph_Fs9bWwg) |
