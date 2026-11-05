@@ -9,7 +9,19 @@
 [Install from the Chrome Web Store](https://chromewebstore.google.com/detail/backdrop-%E2%80%94-screenshots-wo/omeobpnjkmohdoeikgpfnfiipemidflk)
 
 <p align="center">
-  <img src="screenshots/popup.png" alt="The toolbar popup: Current screen, Entire page, and the background picker open on Shuffle all" width="296" />
+  <img src="screenshots/popup-closed.png" alt="The toolbar popup closed: Current screen, Entire page, and Shuffle all photos" width="296" />
+</p>
+
+<p align="center">
+  <img src="screenshots/popup.png" alt="The same popup with the background picker open" width="296" />
+</p>
+
+<p align="center">
+  <img src="screenshots/popup-closed-dark.png" alt="The toolbar popup in dark mode, closed" width="296" />
+</p>
+
+<p align="center">
+  <img src="screenshots/popup-dark.png" alt="The same popup in dark mode with the background picker open" width="296" />
 </p>
 
 ## Install (unpacked)
